@@ -1,51 +1,59 @@
-import React, { useState } from 'react';
-import Header from './components/Header';
-import Hero from './components/Hero';
-import SearchSection from './components/SearchSection';
-import FeaturedProfiles from './components/FeaturedProfiles';
-import SuccessStories from './components/SuccessStories';
-import MembershipPlans from './components/MembershipPlans';
-import TrustSafety from './components/TrustSafety';
-import Footer from './components/Footer';
-import AuthModal from './components/AuthModal';
-import ProfileModal from './components/ProfileModal';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { ProfileProvider } from './contexts/ProfileContext';
+import LandingPage from './pages/LandingPage';
+import Dashboard from './pages/Dashboard';
+import ProfileEdit from './pages/ProfileEdit';
+import Search from './pages/Search';
+import Chat from './pages/Chat';
+import Subscription from './pages/Subscription';
+import Settings from './pages/Settings';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [selectedProfile, setSelectedProfile] = useState<any>(null);
-
-  const openAuthModal = (mode: 'login' | 'register') => {
-    setAuthMode(mode);
-    setIsAuthModalOpen(true);
-  };
-
   return (
-    <div className="min-h-screen bg-white">
-      <Header onAuthClick={openAuthModal} />
-      <Hero onGetStarted={() => openAuthModal('register')} />
-      <SearchSection />
-      <FeaturedProfiles onProfileClick={setSelectedProfile} />
-      <SuccessStories />
-      <MembershipPlans onSelectPlan={() => openAuthModal('register')} />
-      <TrustSafety />
-      <Footer />
-      
-      {isAuthModalOpen && (
-        <AuthModal
-          mode={authMode}
-          onClose={() => setIsAuthModalOpen(false)}
-          onSwitchMode={setAuthMode}
-        />
-      )}
-      
-      {selectedProfile && (
-        <ProfileModal
-          profile={selectedProfile}
-          onClose={() => setSelectedProfile(null)}
-        />
-      )}
-    </div>
+    <AuthProvider>
+      <ProfileProvider>
+        <Router>
+          <div className="min-h-screen bg-gray-50">
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile/edit" element={
+                <ProtectedRoute>
+                  <ProfileEdit />
+                </ProtectedRoute>
+              } />
+              <Route path="/search" element={
+                <ProtectedRoute>
+                  <Search />
+                </ProtectedRoute>
+              } />
+              <Route path="/chat/:userId?" element={
+                <ProtectedRoute>
+                  <Chat />
+                </ProtectedRoute>
+              } />
+              <Route path="/subscription" element={
+                <ProtectedRoute>
+                  <Subscription />
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </div>
+        </Router>
+      </ProfileProvider>
+    </AuthProvider>
   );
 }
 
